@@ -12,7 +12,8 @@ print("Hora del sistema:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 # --- Configuración del bot de Telegram ---
 TOKEN = "7600771185:AAFYO9DGU2YcSZgmMB6g3A6bCFPp3D1zaIU"
-CHAT_ID = "225671791"
+#CHAT_ID = "225671791"
+CHAT_IDS = ["225671791", "6441909"]  # Añade más IDs
 
 # --- Fondos y sus URLs en Investing ---
 fondos = {
@@ -74,13 +75,14 @@ valores_actuales = {}
 # --- Enviar mensaje a Telegram ---
 def enviar_mensaje(texto):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    data = {"chat_id": CHAT_ID, "text": texto}
-    r = requests.post(url, data=data)
-    if r.status_code == 200:
-        print("✅ Mensaje enviado correctamente.")
-    else:
-        print("❌ Error al enviar mensaje:", r.text)
-
+    for chat_id in CHAT_IDS:
+        data = {"chat_id": chat_id, "text": texto}
+        r = requests.post(url, data=data)
+        if r.status_code == 200:
+            print(f"✅ Mensaje enviado a {chat_id}")
+        else:
+            print(f"❌ Error al enviar mensaje a {chat_id}: {r.text}")
+            
 def obtener_fecha_generica(soup):
     div_fecha = soup.find("div", class_="bottom lighterGrayFont arial_11")
     if div_fecha:
