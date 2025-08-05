@@ -236,9 +236,21 @@ def home():
 def iniciar_servidor():
     app.run(host='0.0.0.0', port=8080)
 
-# Inicia el servidor Flask en segundo plano
-threading.Thread(target=iniciar_servidor).start()
+# --- Función para enviar auto-ping cada 10 minutos ---
+def autoping():
+    while True:
+        try:
+            requests.get("https://bot-py-ji2i.onrender.com/")
+            print("🔁 Auto-ping enviado")
+        except Exception as e:
+            print("❌ Error en auto-ping:", e)
+        time.sleep(600)
 
+# Lanzar servidor Flask y auto-ping en hilos separados
+threading.Thread(target=iniciar_servidor).start()
+threading.Thread(target=autoping).start()
+
+# Ejecutar el scheduler
 while True:
     schedule.run_pending()
     time.sleep(5)
