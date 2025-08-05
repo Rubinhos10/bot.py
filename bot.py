@@ -212,8 +212,8 @@ def tarea_00_15():
 
 
 # --- Lanzar tareas manuales para prueba ---
-tarea_16_00()
-tarea_00_15()
+#tarea_16_00()
+#tarea_00_15()
 
 # --- Programar ejecuciones automáticas ---
 schedule.every().day.at("14:00").do(tarea_16_00)
