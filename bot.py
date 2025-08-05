@@ -49,7 +49,7 @@ acciones = {
     },
     "ES0109260531": {
         "nombre": "Amper",
-        "ticker": "AMP"
+        "ticker": "AMP.MC"
     }
 }
 
