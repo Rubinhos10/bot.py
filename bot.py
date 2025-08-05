@@ -46,6 +46,10 @@ acciones = {
     "ES0126962069": {
         "nombre": "Nueva Expresion Textil SA",
         "ticker": "NXT.MC"
+    },
+    "ES0109260531": {
+        "nombre": "Amper",
+        "ticker": "AMP"
     }
 }
 
@@ -60,7 +64,8 @@ valores_anteriores = {
     },
     "acciones": {
         "GB0001500809": 14.8,
-        "ES0126962069": 0.450
+        "ES0126962069": 0.450,
+        "ES0109260531": 0.146
     }
 }
 
