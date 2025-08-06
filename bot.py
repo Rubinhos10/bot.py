@@ -207,7 +207,7 @@ def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, 
             simbolo = "🔴"
         else:
             simbolo = "⚪️"
-        mensaje += f"{simbolo} {isin} - *{datos['nombre']}*: {precio_str} (Fecha: {fecha} {variacion_actual}) (YTD: {variacion_ytd}) (Rentabilidad Ruben: {variacion})\n"
+        mensaje += f"{simbolo} {isin} - *{datos['nombre']}*: {precio_str} ({fecha}: {variacion_actual}) (YTD: {variacion_ytd}) (Rentabilidad Ruben: {variacion})\n"
 
     if incluir_acciones:
         mensaje += "\n📊 Acciones:\n"
