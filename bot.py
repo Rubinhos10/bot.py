@@ -180,7 +180,7 @@ def calcular_variacion(ant, actual):
         return "N/D"
 
 def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones):
-    mensaje = f"📈 *Actualización* — {(datetime.now() + timedelta(hours=2)).strftime('%Y-%m-%d %H:%M')}\n\n"
+    mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
     mensaje += "💼 Fondos:\n"
     for isin in fondos_seleccionados:
         datos = fondos[isin]
