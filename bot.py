@@ -19,23 +19,34 @@ CHAT_IDS = ["225671791", "6441909"]  # Añade más IDs
 fondos = {
     "ES0175414012": {
         "nombre": "Dunas Valor Equilibrado R FI",
-        "url": "https://es.investing.com/funds/es0175414012"
+        "url": "https://es.investing.com/funds/es0175414012",
+        "url_hist": "https://www.finect.com/fondos-inversion/ES0175414012-Dunas_valor_equilibrado_r_fi"
     },
     "IE00BD0NCM55": {
         "nombre": "iShares Developed World Index Fund (IE) D Acc Eur",
-        "url": "https://es.investing.com/funds/ie00bd0ncm55"
+        "url": "https://es.investing.com/funds/ie00bd0ncm55",
+        "url_hist": "https://www.finect.com/fondos-inversion/IE00BD0NCM55-Ishares_dev_wld_idx_ie_d_acc_eur"
     },
     "ES0140794001": {
         "nombre": "Gamma Global A FI",
-        "url": "https://es.investing.com/funds/es0140794001"
+        "url": "https://es.investing.com/funds/es0140794001",
+        "url_hist": "https://www.finect.com/fondos-inversion/ES0140794001-Gamma_global_fi"
     },
     "LU1508158430": {
         "nombre": "ASIAPF DV EQ ABS RT A2 AC EURH",
-        "url": "https://es.investing.com/funds/lu1508158430"
+        "url": "https://es.investing.com/funds/lu1508158430",
+        "url_hist": "https://www.finect.com/fondos-inversion/LU1508158430-Bsf_asia_pacific_divers_eq_ar_a2_eur_h"
     },
     "ES0175437005": {
         "nombre": "Dunas Valor Prudente R FI",
-        "url": "https://es.investing.com/funds/es0175437005"
+        "url": "https://es.investing.com/funds/es0175437005",
+        "url_hist": "https://www.finect.com/fondos-inversion/ES0175437005-Dunas_valor_prudente_r_fi"
+    }
+    ,
+    "FR0000989626": {
+        "nombre": "Groupama Trésorerie IC",
+        "url": "https://es.investing.com/funds/fr0000989626",
+        "url_hist": "https://www.finect.com/fondos-inversion/FR0000989626-Groupama_tresorerie_ic"
     }
 }
 
@@ -76,13 +87,13 @@ valores_actuales = {}
 def enviar_mensaje(texto):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     for chat_id in CHAT_IDS:
-        data = {"chat_id": chat_id, "text": texto}
+        data = {"chat_id": chat_id, "text": texto, "parse_mode": "Markdown"}
         r = requests.post(url, data=data)
         if r.status_code == 200:
             print(f"✅ Mensaje enviado a {chat_id}")
         else:
             print(f"❌ Error al enviar mensaje a {chat_id}: {r.text}")
-            
+
 def obtener_fecha_generica(soup):
     div_fecha = soup.find("div", class_="bottom lighterGrayFont arial_11")
     if div_fecha:
@@ -93,15 +104,23 @@ def obtener_fecha_generica(soup):
             return match.group(1)
     return "N/D"
     
-def obtener_precio_fondo_investing(url):
+def obtener_precio_fondo_investing(url, url_hist):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     r = requests.get(url, headers=headers, timeout=10)
     if r.status_code != 200:
         print(f"Error al obtener la página {url}: {r.status_code}")
-        return None, "N/D"
+        return None, "N/D", None, None
+
+    r2 = requests.get(url_hist, headers=headers, timeout=10)
+    if r.status_code != 200:
+        print(f"Error al obtener la página {url}: {r.status_code}")
+        return None, "N/D", None, None
 
     soup = BeautifulSoup(r.content, "html.parser")
+    soup2 = BeautifulSoup(r2.content, "html.parser")
     precio_span = soup.find("span", id="last_last")
+    variacion_span = soup.find("span", class_=["pcp", "parentheses"])
+    variacion_span_ytd = soup2.find("span", class_=["partials__Value-sc-jbvs3z-1", "eHgKAY"])    
     if precio_span:
         precio_texto = precio_span.text.strip()
         precio_texto = precio_texto.replace(".", "").replace(",", ".")
@@ -113,12 +132,31 @@ def obtener_precio_fondo_investing(url):
     else:
         print(f"No se encontró el elemento precio en {url}")
         precio_texto = None
+
+    if variacion_span:
+        variacion_texto = variacion_span.text.strip()
+        variacion_texto = variacion_texto.replace(".", "").replace(",", ".")
+        #try:
+        #variacion_texto = float(variacion_texto)
+#except Exception as e:
+        #print(f"Error al convertir precio a float: {variacion_texto} ({e})")
+        #variacion_texto =  None
+    else:
+        print(f"No se encontró el elemento precio en {url}")
+        variacion_texto = None
+
+    if variacion_span_ytd:
+        variacion_texto_ytd = variacion_span_ytd.text.strip()
+        variacion_texto_ytd = variacion_texto_ytd.replace(".", "").replace(",", ".")
+    else:
+        print(f"No se encontró el elemento precio en {url}")
+        variacion_texto_ytd = None
         
     # Fecha
     fecha_texto = obtener_fecha_generica(soup)
     print(fecha_texto)
 
-    return precio_texto, fecha_texto
+    return precio_texto, fecha_texto, variacion_texto, variacion_texto_ytd
 
 def obtener_datos_accion(ticker):
     try:
@@ -142,16 +180,16 @@ def calcular_variacion(ant, actual):
         return "N/D"
 
 def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones):
-    mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
+    mensaje = f"📈 *Actualización* — {(datetime.now() + timedelta(hours=2)).strftime('%Y-%m-%d %H:%M')}\n\n"
     mensaje += "💼 Fondos:\n"
     for isin in fondos_seleccionados:
         datos = fondos[isin]
         ant = valores_anteriores.get("fondos", {}).get(isin)
         actual_tuple = valores_actuales.get("fondos", {}).get(isin)
         if actual_tuple is not None:
-            actual, fecha = actual_tuple
+            actual, fecha, variacion_actual, variacion_ytd = actual_tuple
         else:
-            actual, fecha = None, "N/D"
+            actual, fecha, variacion_actual, variacion_ytd = None, "N/D", "N/D", None
 
         if ant is None:
             variacion = "N/D (sin valor previo)"
@@ -163,25 +201,41 @@ def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, 
             variacion = calcular_variacion(ant_precio, actual) if actual is not None else "N/D"
 
         precio_str = f"{actual:.3f}" if actual is not None else "N/D"
-        mensaje += f"• {isin} - {datos['nombre']}: {precio_str} (Fecha: {fecha}) ({variacion})\n"
+        if variacion_actual.startswith('+'):
+            simbolo = "🟢"
+        elif variacion_actual.startswith('-'):
+            simbolo = "🔴"
+        else:
+            simbolo = "⚪️"
+        mensaje += f"{simbolo} {isin} - *{datos['nombre']}*: {precio_str} (Fecha: {fecha}) ({variacion}) (Diaria: {variacion_actual}) (YTD: {variacion_ytd})\n"
 
     if incluir_acciones:
         mensaje += "\n📊 Acciones:\n"
         for isin, info in acciones.items():
             precio_actual, variacion = obtener_datos_accion(info["ticker"])
+            
             if precio_actual is not None and variacion is not None:
-                mensaje += f"• {isin} ({info['nombre']}): {precio_actual:.3f} ({variacion:+.2f}%)\n"
+                variacion_actual_str = f"{variacion:+.2f}%" if isinstance(variacion, (float, int)) else str(variacion)
+                print(variacion)
+                if variacion_actual_str.startswith('+'):
+                    simbolo = "🟢"
+                elif variacion_actual_str.startswith('-'):
+                    simbolo = "🔴"
+                else:
+                    simbolo = "⚪️"
+                mensaje += f"{simbolo} {isin} ({info['nombre']}): {precio_actual:.3f} ({variacion:+.2f}%)\n"
                 info["valor_anterior"] = precio_actual
             else:
-                mensaje += f"• {isin} ({info['nombre']}): N/D\n"
+                simbolo = "⚪️"
+                mensaje += f"{simbolo} {isin} ({info['nombre']}): N/D\n"
 
     return mensaje
 
 def actualizar_valores_fondos(fondos_seleccionados):
     for isin in fondos_seleccionados:
-        precio, fecha  = obtener_precio_fondo_investing(fondos[isin]["url"])
+        precio, fecha, variacion, variacion_ytd  = obtener_precio_fondo_investing(fondos[isin]["url"], fondos[isin]["url_hist"])
         if precio is not None:
-            valores_actuales.setdefault("fondos", {})[isin] = (precio, fecha)
+            valores_actuales.setdefault("fondos", {})[isin] = (precio, fecha, variacion, variacion_ytd)
         else:
             valores_actuales.setdefault("fondos", {})[isin] = valores_anteriores.get("fondos", {}).get(isin, 0)
 
