@@ -41,12 +41,16 @@ fondos = {
         "nombre": "Dunas Valor Prudente R FI",
         "url": "https://es.investing.com/funds/es0175437005",
         "url_hist": "https://www.finect.com/fondos-inversion/ES0175437005-Dunas_valor_prudente_r_fi"
-    }
-    ,
+    },
     "FR0000989626": {
         "nombre": "Groupama Trésorerie IC",
         "url": "https://es.investing.com/funds/fr0000989626",
         "url_hist": "https://www.finect.com/fondos-inversion/FR0000989626-Groupama_tresorerie_ic"
+    },
+    "ES0146309002": {
+        "nombre": "Groupama Trésorerie IC",
+        "url": "https://es.investing.com/funds/horos-value-internacional-fi",
+        "url_hist": "https://www.finect.com/fondos-inversion/ES0146309002-Horos_value_internacional_fi"
     }
 }
 
@@ -62,6 +66,10 @@ acciones = {
     "ES0109260531": {
         "nombre": "Amper",
         "ticker": "AMP.MC"
+    },
+    "ES0105130001": {
+        "nombre": "Global Dominion",
+        "ticker": "DOM.MC"
     }
 }
 
@@ -72,12 +80,14 @@ valores_anteriores = {
         "IE00BD0NCM55": 22.499,
         "ES0140794001": 12.366,
         "LU1508158430": 171.600,
-        "ES0175437005": 114.569
+        "ES0175437005": 114.569,
+        "ES0175437005": 192.212
     },
     "acciones": {
         "GB0001500809": 14.8,
         "ES0126962069": 0.450,
-        "ES0109260531": 0.146
+        "ES0109260531": 0.146,
+        "ES0105130001": 3.220
     }
 }
 
