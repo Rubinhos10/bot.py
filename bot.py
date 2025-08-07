@@ -48,7 +48,7 @@ fondos = {
         "url_hist": "https://www.finect.com/fondos-inversion/FR0000989626-Groupama_tresorerie_ic"
     },
     "ES0146309002": {
-        "nombre": "Groupama Trésorerie IC",
+        "nombre": "Horos Value Internacional Fi",
         "url": "https://es.investing.com/funds/horos-value-internacional-fi",
         "url_hist": "https://www.finect.com/fondos-inversion/ES0146309002-Horos_value_internacional_fi"
     }
