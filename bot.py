@@ -81,7 +81,7 @@ valores_anteriores = {
         "ES0140794001": 12.366,
         "LU1508158430": 171.600,
         "ES0175437005": 114.569,
-        "ES0175437005": 192.212
+        "ES0146309002": 192.212
     },
     "acciones": {
         "GB0001500809": 14.8,
@@ -252,7 +252,7 @@ def actualizar_valores_fondos(fondos_seleccionados):
 def tarea_16_00():
     global valores_anteriores, valores_actuales
     valores_actuales = {"fondos": {}, "acciones": {}}
-    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55"]
+    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002"]
     acciones_a_consultar = True
 
     actualizar_valores_fondos(fondos_a_consultar)
