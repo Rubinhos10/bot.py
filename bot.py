@@ -292,29 +292,40 @@ def comando_acciones(chat_id):
 def escuchar_comandos():
     offset = None
     while True:
-        response = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset})
-        data = response.json()
-        for result in data["result"]:
-            offset = result["update_id"] + 1
-            message = result.get("message")
-            if not message:
-                continue
-            chat_id = str(message["chat"]["id"])
-            text = message.get("text")
+        try:
+            response = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
+            data = response.json()
 
-            # FILTRO POR CHAT ID
-            if chat_id not in CHAT_IDS:
-                enviar_mensaje("⛔ No tienes permiso para usar este bot.")
+            if not data.get("ok"):
+                print(f"Error en getUpdates: {data}")
+                time.sleep(5)
                 continue
 
-            # COMANDOS
-            if text == "/fondos":
-                tarea_16_00()
-                tarea_00_15()
-            elif text == "/acciones":
-                comando_acciones(chat_id)
-            else:
-                enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.")
+            for result in data.get("result", []):
+                offset = result["update_id"] + 1
+                message = result.get("message")
+                if not message:
+                    continue
+                chat_id = str(message["chat"]["id"])
+                text = message.get("text")
+                print(f"Mensaje recibido: {text} de {chat_id}")
+
+                # FILTRO POR CHAT ID
+                if chat_id not in CHAT_IDS:
+                    enviar_mensaje("⛔ No tienes permiso para usar este bot.")
+                    continue
+
+                # COMANDOS
+                if text == "/fondos":
+                    tarea_16_00()
+                    tarea_00_15()
+                elif text == "/acciones":
+                    comando_acciones(chat_id)
+                else:
+                    enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.")
+
+        except Exception as e:
+            print(f"Error escuchando comandos: {e}")
 
         time.sleep(1)
         
@@ -347,6 +358,7 @@ def autoping():
 # Lanzar servidor Flask y auto-ping en hilos separados
 threading.Thread(target=iniciar_servidor).start()
 threading.Thread(target=autoping).start()
+threading.Thread(target=escuchar_comandos, daemon=True).start()
 
 # Ejecutar el scheduler
 while True:
