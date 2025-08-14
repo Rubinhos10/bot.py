@@ -285,7 +285,39 @@ def tarea_00_15():
 # --- Lanzar tareas manuales para prueba ---
 #tarea_16_00()
 #tarea_00_15()
+def comando_acciones(chat_id):
+    # Aquí va tu lógica de acciones
+    enviar_mensaje("📈 Acciones actualizadas: ...")
+# Escuchar comandos
+def escuchar_comandos():
+    offset = None
+    while True:
+        response = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset})
+        data = response.json()
+        for result in data["result"]:
+            offset = result["update_id"] + 1
+            message = result.get("message")
+            if not message:
+                continue
+            chat_id = str(message["chat"]["id"])
+            text = message.get("text")
 
+            # FILTRO POR CHAT ID
+            if chat_id not in CHAT_IDS:
+                enviar_mensaje("⛔ No tienes permiso para usar este bot.")
+                continue
+
+            # COMANDOS
+            if text == "/fondos":
+                tarea_16_00()
+                tarea_00_15()
+            elif text == "/acciones":
+                comando_acciones(chat_id)
+            else:
+                enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.")
+
+        time.sleep(1)
+        
 # --- Programar ejecuciones automáticas ---
 schedule.every().day.at("14:00").do(tarea_16_00)
 schedule.every().day.at("22:15").do(tarea_00_15)
