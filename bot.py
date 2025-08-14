@@ -94,11 +94,21 @@ valores_anteriores = {
 valores_actuales = {}
 
 # --- Enviar mensaje a Telegram ---
-def enviar_mensaje(texto):
+def enviar_mensaje(texto, chat_id):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    for chat_id in CHAT_IDS:
+    if  chat_id is None:
+        for chat_ids in CHAT_IDS:
+            data = {"chat_id": chat_ids, "text": texto, "parse_mode": "Markdown"}
+            r = requests.post(url, data=data)
+            #requests.get(url, params={"chat_id": chat_id, "text": texto})
+            if r.status_code == 200:
+                print(f"✅ Mensaje enviado a {chat_ids}")
+            else:
+                print(f"❌ Error al enviar mensaje a {chat_ids}: {r.text}")
+    else:
         data = {"chat_id": chat_id, "text": texto, "parse_mode": "Markdown"}
         r = requests.post(url, data=data)
+        #requests.get(url, params={"chat_id": chat_id, "text": texto})
         if r.status_code == 200:
             print(f"✅ Mensaje enviado a {chat_id}")
         else:
@@ -257,7 +267,7 @@ def tarea_16_00():
 
     actualizar_valores_fondos(fondos_a_consultar)
     mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
-    enviar_mensaje(mensaje)
+    enviar_mensaje(mensaje, None)
 
     # ✅ Copia profunda de solo los fondos consultados
     for isin in fondos_a_consultar:
@@ -273,13 +283,27 @@ def tarea_00_15():
 
     actualizar_valores_fondos(fondos_a_consultar)
     mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
-    enviar_mensaje(mensaje)
+    enviar_mensaje(mensaje, None)
 
     # ✅ Copia profunda solo de ese fondo
     for isin in fondos_a_consultar:
         valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
 
     print("Mensaje enviado a las 00:15")
+
+def comando_fondos(chat_id):
+    global valores_anteriores, valores_actuales
+    valores_actuales = {"fondos": {}, "acciones": {}}
+    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
+    acciones_a_consultar = True
+
+    actualizar_valores_fondos(fondos_a_consultar)
+    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
+    enviar_mensaje(mensaje, chat_id)
+
+    # ✅ Copia profunda de solo los fondos consultados
+    for isin in fondos_a_consultar:
+        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
 
 
 # --- Lanzar tareas manuales para prueba ---
@@ -312,17 +336,16 @@ def escuchar_comandos():
 
                 # FILTRO POR CHAT ID
                 if chat_id not in CHAT_IDS:
-                    enviar_mensaje("⛔ No tienes permiso para usar este bot.")
+                    enviar_mensaje("⛔ No tienes permiso para usar este bot.", chat_id)
                     continue
 
                 # COMANDOS
                 if text == "/fondos":
-                    tarea_16_00()
-                    tarea_00_15()
+                    comando_fondos(chat_id)
                 elif text == "/acciones":
                     comando_acciones(chat_id)
                 else:
-                    enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.")
+                    enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.", chat_id)
 
         except Exception as e:
             print(f"Error escuchando comandos: {e}")
