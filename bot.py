@@ -316,8 +316,8 @@ def comando_fondos(chat_id):
 #tarea_00_15()
 def comando_acciones(chat_id):
     global valores_anteriores, valores_actuales
-    #valores_actuales = {"fondos": {}, "acciones": {}}
-    #fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
+    valores_actuales = {"fondos": {}, "acciones": {}}
+    fondos_a_consultar = []
     acciones_a_consultar = True
     incluir_fondos = False
 
