@@ -334,48 +334,28 @@ def escuchar_comandos():
     offset = None
     while True:
         try:
-            response = requests.get(
-                f"https://api.telegram.org/bot{TOKEN}/getUpdates",
-                params={"offset": offset, "timeout": 10, "allowed_updates": ["message"]}
-            )
-            data = response.json()
-
-            if not data.get("ok"):
-                print(f"Error en getUpdates: {data}")
-                time.sleep(5)
-                continue
-
+            resp = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
+            data = resp.json()
             for result in data.get("result", []):
                 update_id = result["update_id"]
-
-                # 🚫 Evitar procesar dos veces el mismo update
                 if ultimo_update_id == update_id:
                     continue
                 ultimo_update_id = update_id
-
                 offset = update_id + 1
-
-                message = result.get("message")
-                if not message:
-                    continue
-
-                chat_id = str(message["chat"]["id"])
-                text = message.get("text", "").strip()
-                print(f"📩 Mensaje recibido: {text} de {chat_id}")
-
+                msg = result.get("message", {})
+                chat_id = str(msg.get("chat", {}).get("id"))
+                text = msg.get("text", "").strip()
                 if chat_id not in CHAT_IDS:
                     enviar_mensaje("⛔ No tienes permiso para usar este bot.", chat_id)
                     continue
-
                 if text == "/fondos":
                     comando_fondos(chat_id)
                 elif text == "/acciones":
                     comando_acciones(chat_id)
                 else:
                     enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.", chat_id)
-
         except Exception as e:
-            print(f"❌ Error escuchando comandos: {e}")
+            print("Error en escuchar_comandos:", e)
             time.sleep(5)
         
 # --- Programar ejecuciones automáticas ---
