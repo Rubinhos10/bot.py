@@ -317,17 +317,16 @@ def comando_fondos(chat_id):
 def comando_acciones(chat_id):
     global valores_anteriores, valores_actuales
     valores_actuales = {"fondos": {}, "acciones": {}}
-    fondos_a_consultar = []
+    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
     acciones_a_consultar = True
     incluir_fondos = False
 
-    #actualizar_valores_fondos(fondos_a_consultar)
+    actualizar_valores_fondos(fondos_a_consultar)
     mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, chat_id)
 
-    # ✅ Copia profunda de solo los fondos consultados
-    #for isin in fondos_a_consultar:
-        #valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
+    for isin in fondos_a_consultar:
+        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
         
 # Escuchar comandos
 def escuchar_comandos():
@@ -405,13 +404,12 @@ def autoping():
             print("❌ Error en auto-ping:", e)
         time.sleep(600)
 
-# Lanzar servidor Flask y auto-ping en hilos separados
-threading.Thread(target=iniciar_servidor).start()
-threading.Thread(target=autoping).start()
-threading.Thread(target=escuchar_comandos, daemon=True).start()
-
-# Ejecutar el scheduler
-while True:
-    schedule.run_pending()
-    time.sleep(5)
+# --- Main ---
+if __name__ == "__main__":
+    threading.Thread(target=iniciar_servidor, daemon=True).start()
+    threading.Thread(target=autoping, daemon=True).start()
+    threading.Thread(target=escuchar_comandos, daemon=True).start()
+    while True:
+        schedule.run_pending()
+        time.sleep(5)
 
