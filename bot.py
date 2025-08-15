@@ -201,9 +201,8 @@ def calcular_variacion(ant, actual):
 
 def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones, incluir_fondos):
     mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
-    
+    mensaje += "💼 Fondos:\n"
     if incluir_fondos:
-        mensaje += "💼 Fondos:\n"
         for isin in fondos_seleccionados:
             datos = fondos[isin]
             ant = valores_anteriores.get("fondos", {}).get(isin)
@@ -325,38 +324,49 @@ def comando_acciones(chat_id):
     mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, chat_id)
 
+    # ✅ Copia profunda de solo los fondos consultados
     for isin in fondos_a_consultar:
         valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
         
 # Escuchar comandos
 def escuchar_comandos():
-    global ultimo_update_id
     offset = None
     while True:
         try:
-            resp = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
-            data = resp.json()
+            response = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
+            data = response.json()
+
+            if not data.get("ok"):
+                print(f"Error en getUpdates: {data}")
+                time.sleep(5)
+                continue
+
             for result in data.get("result", []):
-                update_id = result["update_id"]
-                if ultimo_update_id == update_id:
+                offset = result["update_id"] + 1
+                message = result.get("message")
+                if not message:
                     continue
-                ultimo_update_id = update_id
-                offset = update_id + 1
-                msg = result.get("message", {})
-                chat_id = str(msg.get("chat", {}).get("id"))
-                text = msg.get("text", "").strip()
+                chat_id = str(message["chat"]["id"])
+                text = message.get("text")
+                print(f"Mensaje recibido: {text} de {chat_id}")
+
+                # FILTRO POR CHAT ID
                 if chat_id not in CHAT_IDS:
                     enviar_mensaje("⛔ No tienes permiso para usar este bot.", chat_id)
                     continue
+
+                # COMANDOS
                 if text == "/fondos":
                     comando_fondos(chat_id)
                 elif text == "/acciones":
                     comando_acciones(chat_id)
                 else:
                     enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.", chat_id)
+
         except Exception as e:
-            print("Error en escuchar_comandos:", e)
-            time.sleep(5)
+            print(f"Error escuchando comandos: {e}")
+
+        time.sleep(1)
         
 # --- Programar ejecuciones automáticas ---
 schedule.every().day.at("14:00").do(tarea_16_00)
@@ -384,12 +394,12 @@ def autoping():
             print("❌ Error en auto-ping:", e)
         time.sleep(600)
 
-# --- Main ---
-if __name__ == "__main__":
-    threading.Thread(target=iniciar_servidor, daemon=True).start()
-    threading.Thread(target=autoping, daemon=True).start()
-    threading.Thread(target=escuchar_comandos, daemon=True).start()
-    while True:
-        schedule.run_pending()
-        time.sleep(5)
+# Lanzar servidor Flask y auto-ping en hilos separados
+threading.Thread(target=iniciar_servidor).start()
+threading.Thread(target=autoping).start()
+threading.Thread(target=escuchar_comandos, daemon=True).start()
 
+# Ejecutar el scheduler
+while True:
+    schedule.run_pending()
+    time.sleep(5)
