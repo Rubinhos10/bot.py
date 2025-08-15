@@ -201,8 +201,9 @@ def calcular_variacion(ant, actual):
 
 def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones, incluir_fondos):
     mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
-    mensaje += "💼 Fondos:\n"
+    
     if incluir_fondos:
+        mensaje += "💼 Fondos:\n"
         for isin in fondos_seleccionados:
             datos = fondos[isin]
             ant = valores_anteriores.get("fondos", {}).get(isin)
@@ -315,18 +316,18 @@ def comando_fondos(chat_id):
 #tarea_00_15()
 def comando_acciones(chat_id):
     global valores_anteriores, valores_actuales
-    valores_actuales = {"fondos": {}, "acciones": {}}
-    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
+    #valores_actuales = {"fondos": {}, "acciones": {}}
+    #fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
     acciones_a_consultar = True
     incluir_fondos = False
 
-    actualizar_valores_fondos(fondos_a_consultar)
+    #actualizar_valores_fondos(fondos_a_consultar)
     mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, chat_id)
 
     # ✅ Copia profunda de solo los fondos consultados
-    for isin in fondos_a_consultar:
-        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
+    #for isin in fondos_a_consultar:
+        #valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
         
 # Escuchar comandos
 def escuchar_comandos():
