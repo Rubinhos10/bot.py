@@ -199,35 +199,36 @@ def calcular_variacion(ant, actual):
     except Exception:
         return "N/D"
 
-def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones):
+def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones, incluir_fondos):
     mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
     mensaje += "💼 Fondos:\n"
-    for isin in fondos_seleccionados:
-        datos = fondos[isin]
-        ant = valores_anteriores.get("fondos", {}).get(isin)
-        actual_tuple = valores_actuales.get("fondos", {}).get(isin)
-        if actual_tuple is not None:
-            actual, fecha, variacion_actual, variacion_ytd = actual_tuple
-        else:
-            actual, fecha, variacion_actual, variacion_ytd = None, "N/D", "N/D", None
-
-        if ant is None:
-            variacion = "N/D (sin valor previo)"
-        else:
-            if isinstance(ant, tuple):
-                ant_precio = ant[0]
+    if incluir_fondos:
+        for isin in fondos_seleccionados:
+            datos = fondos[isin]
+            ant = valores_anteriores.get("fondos", {}).get(isin)
+            actual_tuple = valores_actuales.get("fondos", {}).get(isin)
+            if actual_tuple is not None:
+                actual, fecha, variacion_actual, variacion_ytd = actual_tuple
             else:
-                ant_precio = ant
-            variacion = calcular_variacion(ant_precio, actual) if actual is not None else "N/D"
-
-        precio_str = f"{actual:.3f}" if actual is not None else "N/D"
-        if variacion_actual.startswith('+'):
-            simbolo = "🟢"
-        elif variacion_actual.startswith('-'):
-            simbolo = "🔴"
-        else:
-            simbolo = "⚪️"
-        mensaje += f"{simbolo} {isin} - *{datos['nombre']}*: {precio_str} ({fecha}: {variacion_actual}) (YTD: {variacion_ytd}) (Rentabilidad Ruben: {variacion})\n"
+                actual, fecha, variacion_actual, variacion_ytd = None, "N/D", "N/D", None
+    
+            if ant is None:
+                variacion = "N/D (sin valor previo)"
+            else:
+                if isinstance(ant, tuple):
+                    ant_precio = ant[0]
+                else:
+                    ant_precio = ant
+                variacion = calcular_variacion(ant_precio, actual) if actual is not None else "N/D"
+    
+            precio_str = f"{actual:.3f}" if actual is not None else "N/D"
+            if variacion_actual.startswith('+'):
+                simbolo = "🟢"
+            elif variacion_actual.startswith('-'):
+                simbolo = "🔴"
+            else:
+                simbolo = "⚪️"
+            mensaje += f"{simbolo} {isin} - *{datos['nombre']}*: {precio_str} ({fecha}: {variacion_actual}) (YTD: {variacion_ytd}) (Rentabilidad Ruben: {variacion})\n"
 
     if incluir_acciones:
         mensaje += "\n📊 Acciones:\n"
@@ -264,9 +265,10 @@ def tarea_16_00():
     valores_actuales = {"fondos": {}, "acciones": {}}
     fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002"]
     acciones_a_consultar = True
+    incluir_fondos = True
 
     actualizar_valores_fondos(fondos_a_consultar)
-    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
+    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, None)
 
     # ✅ Copia profunda de solo los fondos consultados
@@ -280,9 +282,10 @@ def tarea_00_15():
     valores_actuales = {"fondos": {}, "acciones": {}}
     fondos_a_consultar = ["LU1508158430"]
     acciones_a_consultar = False
+    incluir_fondos = True
 
     actualizar_valores_fondos(fondos_a_consultar)
-    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
+    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, None)
 
     # ✅ Copia profunda solo de ese fondo
@@ -295,10 +298,11 @@ def comando_fondos(chat_id):
     global valores_anteriores, valores_actuales
     valores_actuales = {"fondos": {}, "acciones": {}}
     fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
-    acciones_a_consultar = True
+    acciones_a_consultar = False
+    incluir_fondos = True
 
     actualizar_valores_fondos(fondos_a_consultar)
-    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar)
+    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
     enviar_mensaje(mensaje, chat_id)
 
     # ✅ Copia profunda de solo los fondos consultados
@@ -310,8 +314,20 @@ def comando_fondos(chat_id):
 #tarea_16_00()
 #tarea_00_15()
 def comando_acciones(chat_id):
-    # Aquí va tu lógica de acciones
-    enviar_mensaje("📈 Acciones actualizadas: ...")
+    global valores_anteriores, valores_actuales
+    valores_actuales = {"fondos": {}, "acciones": {}}
+    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002", "LU1508158430"]
+    acciones_a_consultar = True
+    incluir_fondos = False
+
+    actualizar_valores_fondos(fondos_a_consultar)
+    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
+    enviar_mensaje(mensaje, chat_id)
+
+    # ✅ Copia profunda de solo los fondos consultados
+    for isin in fondos_a_consultar:
+        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
+        
 # Escuchar comandos
 def escuchar_comandos():
     offset = None
