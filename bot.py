@@ -343,7 +343,9 @@ def escuchar_comandos():
                 continue
 
             for result in data.get("result", []):
+                # Guardar el offset ANTES de procesar
                 offset = result["update_id"] + 1
+            
                 message = result.get("message")
                 if not message:
                     continue
