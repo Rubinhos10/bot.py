@@ -331,10 +331,14 @@ def comando_acciones(chat_id):
         
 # Escuchar comandos
 def escuchar_comandos():
+    global ultimo_update_id
     offset = None
     while True:
         try:
-            response = requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
+            response = requests.get(
+                f"https://api.telegram.org/bot{TOKEN}/getUpdates",
+                params={"offset": offset, "timeout": 10, "allowed_updates": ["message"]}
+            )
             data = response.json()
 
             if not data.get("ok"):
@@ -343,22 +347,27 @@ def escuchar_comandos():
                 continue
 
             for result in data.get("result", []):
-                # Guardar el offset ANTES de procesar
-                offset = result["update_id"] + 1
-            
+                update_id = result["update_id"]
+
+                # 🚫 Evitar procesar dos veces el mismo update
+                if ultimo_update_id == update_id:
+                    continue
+                ultimo_update_id = update_id
+
+                offset = update_id + 1
+
                 message = result.get("message")
                 if not message:
                     continue
-                chat_id = str(message["chat"]["id"])
-                text = message.get("text")
-                print(f"Mensaje recibido: {text} de {chat_id}")
 
-                # FILTRO POR CHAT ID
+                chat_id = str(message["chat"]["id"])
+                text = message.get("text", "").strip()
+                print(f"📩 Mensaje recibido: {text} de {chat_id}")
+
                 if chat_id not in CHAT_IDS:
                     enviar_mensaje("⛔ No tienes permiso para usar este bot.", chat_id)
                     continue
 
-                # COMANDOS
                 if text == "/fondos":
                     comando_fondos(chat_id)
                 elif text == "/acciones":
@@ -367,9 +376,8 @@ def escuchar_comandos():
                     enviar_mensaje("Comando no reconocido. Usa /fondos o /acciones.", chat_id)
 
         except Exception as e:
-            print(f"Error escuchando comandos: {e}")
-
-        time.sleep(1)
+            print(f"❌ Error escuchando comandos: {e}")
+            time.sleep(5)
         
 # --- Programar ejecuciones automáticas ---
 schedule.every().day.at("14:00").do(tarea_16_00)
