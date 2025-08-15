@@ -201,8 +201,8 @@ def calcular_variacion(ant, actual):
 
 def generar_mensaje(valores_anteriores, valores_actuales, fondos_seleccionados, incluir_acciones, incluir_fondos):
     mensaje = f"📈 *Actualización* — {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
-    mensaje += "💼 Fondos:\n"
     if incluir_fondos:
+        mensaje += "💼 Fondos:\n"
         for isin in fondos_seleccionados:
             datos = fondos[isin]
             ant = valores_anteriores.get("fondos", {}).get(isin)
