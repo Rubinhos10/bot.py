@@ -261,7 +261,7 @@ def actualizar_valores_fondos(fondos_seleccionados):
             valores_actuales.setdefault("fondos", {})[isin] = valores_anteriores.get("fondos", {}).get(isin, 0)
 
 def tarea_16_00():
-    if datetime.datetime.today().weekday() < 5:
+    if datetime.today().weekday() < 5
         global valores_anteriores, valores_actuales
         valores_actuales = {"fondos": {}, "acciones": {}}
         fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002"]
@@ -279,7 +279,7 @@ def tarea_16_00():
         print("Mensaje enviado a las 16:00")
 
 def tarea_00_15():
-    if datetime.datetime.today().weekday() < 5:
+    if datetime.today().weekday() < 5
         global valores_anteriores, valores_actuales
         valores_actuales = {"fondos": {}, "acciones": {}}
         fondos_a_consultar = ["LU1508158430"]
