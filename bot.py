@@ -261,36 +261,38 @@ def actualizar_valores_fondos(fondos_seleccionados):
             valores_actuales.setdefault("fondos", {})[isin] = valores_anteriores.get("fondos", {}).get(isin, 0)
 
 def tarea_16_00():
-    global valores_anteriores, valores_actuales
-    valores_actuales = {"fondos": {}, "acciones": {}}
-    fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002"]
-    acciones_a_consultar = True
-    incluir_fondos = True
-
-    actualizar_valores_fondos(fondos_a_consultar)
-    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
-    enviar_mensaje(mensaje, None)
-
-    # ✅ Copia profunda de solo los fondos consultados
-    for isin in fondos_a_consultar:
-        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
-
-    print("Mensaje enviado a las 16:00")
+    if datetime.datetime.today().weekday() < 5:
+        global valores_anteriores, valores_actuales
+        valores_actuales = {"fondos": {}, "acciones": {}}
+        fondos_a_consultar = ["ES0175437005", "ES0175414012", "ES0140794001", "IE00BD0NCM55","ES0146309002"]
+        acciones_a_consultar = True
+        incluir_fondos = True
+    
+        actualizar_valores_fondos(fondos_a_consultar)
+        mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
+        enviar_mensaje(mensaje, None)
+    
+        # ✅ Copia profunda de solo los fondos consultados
+        for isin in fondos_a_consultar:
+            valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
+    
+        print("Mensaje enviado a las 16:00")
 
 def tarea_00_15():
-    global valores_anteriores, valores_actuales
-    valores_actuales = {"fondos": {}, "acciones": {}}
-    fondos_a_consultar = ["LU1508158430"]
-    acciones_a_consultar = False
-    incluir_fondos = True
-
-    actualizar_valores_fondos(fondos_a_consultar)
-    mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
-    enviar_mensaje(mensaje, None)
-
-    # ✅ Copia profunda solo de ese fondo
-    for isin in fondos_a_consultar:
-        valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
+    if datetime.datetime.today().weekday() < 5:
+        global valores_anteriores, valores_actuales
+        valores_actuales = {"fondos": {}, "acciones": {}}
+        fondos_a_consultar = ["LU1508158430"]
+        acciones_a_consultar = False
+        incluir_fondos = True
+    
+        actualizar_valores_fondos(fondos_a_consultar)
+        mensaje = generar_mensaje(valores_anteriores, valores_actuales, fondos_a_consultar, acciones_a_consultar, incluir_fondos)
+        enviar_mensaje(mensaje, None)
+    
+        # ✅ Copia profunda solo de ese fondo
+        for isin in fondos_a_consultar:
+            valores_anteriores["fondos"][isin] = valores_actuales["fondos"][isin]
 
     print("Mensaje enviado a las 00:15")
 
