@@ -70,6 +70,10 @@ acciones = {
     "ES0105130001": {
         "nombre": "Global Dominion",
         "ticker": "DOM.MC"
+    },
+    "CA2548481043": {
+        "nombre": "District Metals Corp",
+        "ticker": "DMX.V"
     }
 }
 
@@ -87,7 +91,8 @@ valores_anteriores = {
         "GB0001500809": 14.8,
         "ES0126962069": 0.450,
         "ES0109260531": 0.146,
-        "ES0105130001": 3.220
+        "ES0105130001": 3.220,
+        "CA2548481043": 1.01
     }
 }
 
